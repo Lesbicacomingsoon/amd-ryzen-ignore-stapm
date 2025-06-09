@@ -1,0 +1,10 @@
+[Unit]
+Description=Ignore chassis (skin) temperature
+Requires=power-profiles-daemon.service
+
+[Service]
+ExecStart=amd-ryzen-ignore-stapm.sh
+IgnoreSIGPIPE=false
+
+[Install]
+WantedBy=default.target
