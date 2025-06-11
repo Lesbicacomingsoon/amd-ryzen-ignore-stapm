@@ -5,7 +5,7 @@ problems with their power management:
 * They reduce APU wattage dynamically to maintain a certain chassis temperature, but that logic
   reacts too slowly to prevent soft-throttling
 * Once soft-throttling kicks in, it stays enabled until you pause all workloads and let the laptop
-  cool of _completely_
+  cool off completely
 
 The service in this repository keeps chassis-based throttling disabled. This makes it possible for
 the APU to run at whatever wattage the current airflow permits. It does not disable hard throttling
@@ -17,8 +17,8 @@ running `powerprofilesctl set performance`, or via GNOME shell:
 
 ![screenshot](https://github.com/user-attachments/assets/d7382465-a156-4d30-aebd-bf5280214d77)
 
-**Note**: The chassis will warm up under full load around the WASD keys. It may not feel very hot at
-first, but after a few hours your fingertips will feel sore. Use an external keyboard for gaming.
+**Note**: The chassis will warm up under full load around the WASD keys. It may not feel very hot,
+but after a few hours your fingertips will feel sore. Use an external keyboard for gaming.
 
 ## Setup (Fedora)
 
@@ -33,16 +33,19 @@ The installed module will be recompiled automatically with every kernel update.
 
 ### Custom UEFI keys
 
-Dkms-install generates module signing keys on its first run. These have to be added to your machines
-UEFI key database. The following command will ask you to set a password, which is only needed _one
-single time_ later in the MOK manager.
+Secure boot is almost certainly enabled on your system. This means it only loads custom kernel
+modules when they are signed with your own UEFI keys. The previous setup step has already done this
+for us, including the creation of a key. This key must be added to your machines UEFI key database,
+which can be done with the following command. The command will ask you to set a custom password. The
+password is not very important and can be reset as often as you want. It is used _only one single
+time_ later in this guide, and then never again.
 
 ```sh
 sudo mokutil --import /var/lib/dkms/mok.pub
 ```
 
-Restart your system. This will boot into the MOK manager. Choose `Enroll MOK`, enter your password
-and then reboot.
+Restart your system. This will boot into the MOK manager. Choose `Enroll MOK`, enter your custom
+password and then reboot.
 [Here](https://github.com/dell/dkms/blob/f7f526c145ecc01fb4ac4eab3009b1879b14ced4/README.md#secure-boot)
 are some screenshots describing the process. After rebooting, the module will be loaded and shows up
 in dmesg. It will print a message about the kernel being tainted, but this just means it loaded an
